@@ -11,14 +11,14 @@ def distance(x1, y1, x2, y2):
 plot_every = 50
 
 def main():
-    Nx = 500 # no of x dimension points
-    Ny = 100 # no of y dimension points
+    Nx = 500 # no of lattices in x direction
+    Ny = 100 # no of lattices in y direction
     tau = .53 # timescale corresponds to kinematic viscosity
-    Nt = 3000 # no of iterations
+    iter_count = 3000 # no of iterations
 
     # lattice speeds and directions
 
-    NL = 9 # each node has 9 directions
+    Node_dirn = 9 # each node has 9 directions
 
     
     # this convention is arbitrary 0 index starting from middle  
@@ -32,7 +32,7 @@ def main():
 
     # initial condition
     # F : distribution function F(x,y,node,velocity)
-    F = np.ones((Ny,Nx,NL)) + .01 * np.random.rand(Ny,Nx,NL) # add slight noise to initial condition
+    F = np.ones((Ny,Nx,Node_dirn)) + .01 * np.random.rand(Ny,Nx,Node_dirn) # add slight noise to initial condition
     F[:,:,3] = 2.3 # we want to flow from left --> right so a non-zero velocity in x direction
 
 
@@ -50,13 +50,13 @@ def main():
                 cylinder[y][x] = True
 
     # main loop
-    for iteration in range(0,Nt):
+    for iteration in range(0,iter_count):
         print(iteration)
 
 
         # streaming step : every node move t it's corresponding node, 
         # axis 1 = x-axis , axis 0 = y- axis , defined in F  
-        for i,cx,cy in zip(range(NL),cxs,cys):
+        for i,cx,cy in zip(range(Node_dirn),cxs,cys):
             F[:,:,i] = np.roll(F[:,:,i],cx,axis = 1)
             F[:,:,i] = np.roll(F[:,:,i],cy,axis = 0) 
 
@@ -82,7 +82,7 @@ def main():
         # collision step
         Feq = np.zeros(F.shape)
 
-        for i,cx,cy,w in zip(range(NL),cxs,cys,weights):
+        for i,cx,cy,w in zip(range(Node_dirn),cxs,cys,weights):
             Feq[:,:,i] =  rho * w * (
                 1 + 3 *(cx*ux + cy*uy) + 9 * (cx*ux + cy*uy)**2/2 - 3 * (ux**2 + uy**2)/2
                 )
