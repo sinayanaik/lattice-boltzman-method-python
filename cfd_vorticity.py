@@ -40,14 +40,14 @@ def main():
     # False : empty space
     # True : obstacle present
 
-    cylinder = np.full((Ny,Nx),False)
+    space = np.full((Ny,Nx),False)
 
     # circular obstacle
 
     for y in range(0,Ny):
         for x in range(0,Nx):
             if distance(x,y,Nx/2,Ny/2) < 13:
-                cylinder[y][x] = True
+                space[y][x] = True
 
     # main loop
     for iteration in range(0,iter_count):
@@ -63,7 +63,7 @@ def main():
 
         # boundary condition
 
-        bndryF = F[cylinder,:]
+        bndryF = F[space,:]
         bndryF = bndryF[:,[0,5,6,7,8,1,2,3,4]] # invert the discrete velocities
 
 
@@ -75,9 +75,9 @@ def main():
 
         # set all velocities inside obstacle to zero
 
-        F[cylinder,:] = bndryF
-        ux[cylinder] = 0
-        uy[cylinder] = 0
+        F[space,:] = bndryF
+        ux[space] = 0
+        uy[space] = 0
 
         # collision step
         Feq = np.zeros(F.shape)
@@ -93,6 +93,7 @@ def main():
             dfydx = ux[2:,1:-1] - ux[0:-2,1:-1]
             dfydy = uy[1:-1,2:] - uy[1:-1,0:-2]
             curl = dfydx - dfydy
+            pyplot.axis('off')
             pyplot.imshow(curl,cmap="bwr")
             pyplot.pause(0.1)
             pyplot.cla()
