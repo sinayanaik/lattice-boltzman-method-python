@@ -1,4 +1,3 @@
-from platform import freedesktop_os_release
 import numpy as np
 from matplotlib import pyplot
 
@@ -8,13 +7,13 @@ from matplotlib import pyplot
 def distance(x1, y1, x2, y2):
     return np.sqrt((x1-x2)**2 + (y1-y2)**2)
 
-plot_every = 10
+plot_every = 20
 
 def main():
-    Nx = 400 # no of x dimension points
-    Ny = 100 # no of y dimension points
-    tau = .53 # timescale corresponds to kinematic viscosity
-    iter_count = 3000 # no of iterations
+    x_dim = 450 # no of x dimension points
+    y_dim = 250 # no of y dimension points
+    tau = 0.53 # timescale corresponds to kinematic viscosity
+    iter_count = 10000 # no of iterations
 
     # lattice speeds and directions
 
@@ -32,7 +31,7 @@ def main():
 
     # initial condition
     # F : distribution function F(x,y,node,velocity)
-    F = np.ones((Ny,Nx,Node_dirn)) + .01 * np.random.rand(Ny,Nx,Node_dirn) # add slight noise to initial condition
+    F = np.ones((y_dim,x_dim,Node_dirn)) + .01 * np.random.rand(y_dim,x_dim,Node_dirn) # add slight noise to initial condition
     F[:,:,3] = 2.3 # we want to flow from left --> right so a non-zero velocity in x direction
 
 
@@ -40,13 +39,13 @@ def main():
     # False : empty space
     # True : obstacle present
 
-    space = np.full((Ny,Nx),False)
+    space = np.full((y_dim,x_dim),False)
 
     # circular obstacle
 
-    for y in range(0,Ny):
-        for x in range(0,Nx):
-            if distance(x,y,Nx/4,Ny/2) < 13:
+    for y in range(0,y_dim):
+        for x in range(0,x_dim):
+            if distance(x,y,x_dim/4,y_dim/2) < 20:
                 space[y][x] = True
 
     # main loop
@@ -93,16 +92,19 @@ def main():
         
         F = F + -(1/tau) * (F-Feq)
 
+
         if(iteration % plot_every == 0):
-            # hide the axis
             pyplot.axis('off')
-            pyplot.imshow(np.sqrt(ux**2 + uy**2))
+            pyplot.imshow(np.sqrt(ux**2 + uy**2),cmap='magma') 
+            # dfydx = ux[2:,1:-1] - ux[0:-2,1:-1]
+            # dfydy = uy[1:-1,2:] - uy[1:-1,0:-2]
+            # curl = dfydx - dfydy
+            # pyplot.imshow(curl,cmap='bwr') # paired , magma , inferno , plasma , viridis , bwr
+            pyplot.colorbar(ticks=[],label='Velocity Scale ')
             pyplot.pause(0.1)
-            pyplot.cla()
+            pyplot.clf()
 
-
-
-
-
+           
+               
 if __name__ == '__main__':
     main()
